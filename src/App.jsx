@@ -3,18 +3,18 @@ import { useState, useEffect } from "react";
 const ADMIN_CREDENTIALS = { username: "admin", password: "yes2024" };
 
 const AWARD_CATEGORIES = [
-  { id: 1, name: "Innovative Startup of the Year", icon: "\u{1F680}" },
-  { id: 2, name: "Social Impact & Community Development Award", icon: "\u{1F30D}" },
-  { id: 3, name: "Tech Trailblazer Award", icon: "\u{1F4BB}" },
-  { id: 4, name: "Comedian of the Year", icon: "\u{1F3AD}" },
-  { id: 5, name: "Lifestyle Influencer of the Year", icon: "\u2728" },
-  { id: 6, name: "Fashionpreneur of the Year", icon: "\u{1F457}" },
-  { id: 7, name: "Entrepreneur of the Year", icon: "\u2B50" },
-  { id: 8, name: "Rising Entrepreneur of the Year", icon: "\u{1F4C8}" },
-  { id: 9, name: "Women in Enterprise Award", icon: "\u{1F451}" },
-  { id: 10, name: "Youth Talent & Innovation Award", icon: "\u{1F4A1}" },
-  { id: 11, name: "Business Transformation & Scalability Award", icon: "\u{1F3C6}" },
-  { id: 12, name: "Service Excellence Award", icon: "\u{1F396}\uFE0F" },
+  { id: 1, name: "Innovative Startup of the Year", icon: "🚀" },
+  { id: 2, name: "Social Impact & Community Development Award", icon: "🌍" },
+  { id: 3, name: "Tech Trailblazer Award", icon: "💻" },
+  { id: 4, name: "Comedian of the Year", icon: "🎭" },
+  { id: 5, name: "Lifestyle Influencer of the Year", icon: "✨" },
+  { id: 6, name: "Fashionpreneur of the Year", icon: "👗" },
+  { id: 7, name: "Entrepreneur of the Year", icon: "⭐" },
+  { id: 8, name: "Rising Entrepreneur of the Year", icon: "📈" },
+  { id: 9, name: "Women in Enterprise Award", icon: "👑" },
+  { id: 10, name: "Youth Talent & Innovation Award", icon: "💡" },
+  { id: 11, name: "Business Transformation & Scalability Award", icon: "🏆" },
+  { id: 12, name: "Service Excellence Award", icon: "🎖️" },
 ];
 
 const STORAGE_KEYS = { votes: "ogun_yes_votes_v2", nominees: "ogun_yes_nominees_v2" };
@@ -54,7 +54,7 @@ const YESLogo = ({ size = 40 }) => (
 const Spinner = () => (
   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", gap: 16 }}>
     <div style={{ width: 40, height: 40, border: "3px solid rgba(34,197,94,0.15)", borderTop: "3px solid #22c55e", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-    <div style={{ fontSize: 13, color: "rgba(240,253,244,0.35)", letterSpacing: "0.15em" }}>LOADING\u2026</div>
+    <div style={{ fontSize: 13, color: "rgba(240,253,244,0.35)", letterSpacing: "0.15em" }}>LOADING…</div>
   </div>
 );
 
@@ -188,14 +188,14 @@ export default function OgunYESVoting() {
       {saving && (
         <div style={{ position: "fixed", bottom: 20, right: 20, zIndex: 999, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 8, padding: "8px 16px", fontSize: 12, color: "#22c55e", display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ width: 10, height: 10, border: "2px solid rgba(34,197,94,0.3)", borderTop: "2px solid #22c55e", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-          Saving\u2026
+          Saving…
         </div>
       )}
 
       {/* SUCCESS TOAST */}
       {voteSuccess && (
         <div style={{ position: "fixed", top: 20, left: "50%", transform: "translateX(-50%)", zIndex: 1000, background: "#14532d", border: "1px solid #22c55e", borderRadius: 12, padding: "14px 24px", display: "flex", alignItems: "center", gap: 12, animation: "successSlide 3s ease forwards", boxShadow: "0 8px 32px rgba(0,0,0,0.5)", whiteSpace: "nowrap" }}>
-          <span style={{ fontSize: 20 }}>\u2705</span>
+          <span style={{ fontSize: 20 }}>✅</span>
           <div>
             <div style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>Vote Saved!</div>
             <div style={{ fontSize: 12, color: "rgba(240,253,244,0.7)" }}>
@@ -209,7 +209,7 @@ export default function OgunYESVoting() {
       {confirmVote && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 500, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(6px)" }}>
           <div style={{ background: "#0f1f11", border: "1px solid rgba(212,175,55,0.4)", borderRadius: 16, padding: "40px 36px", maxWidth: 380, width: "90%", textAlign: "center", animation: "fadeUp 0.3s" }}>
-            <div style={{ fontSize: 48, animation: "starPop 0.4s", marginBottom: 16 }}>\u2B50</div>
+            <div style={{ fontSize: 48, animation: "starPop 0.4s", marginBottom: 16 }}>⭐</div>
             <div style={{ fontFamily: "'Oswald',sans-serif", fontSize: 22, marginBottom: 8, color: "#f0fdf4" }}>Confirm Your Vote</div>
             <div style={{ fontSize: 14, color: "rgba(240,253,244,0.55)", marginBottom: 8, lineHeight: 1.6 }}>
               Category: <span style={{ color: "#22c55e", fontWeight: 600 }}>{confirmVote.catName}</span>
@@ -220,7 +220,7 @@ export default function OgunYESVoting() {
                 Cancel
               </button>
               <button onClick={submitVote} style={{ padding: "11px 28px", background: "#22c55e", color: "#052e16", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 700 }}>
-                Cast My Vote \u2B50
+                Cast My Vote ⭐
               </button>
             </div>
           </div>
@@ -252,7 +252,7 @@ export default function OgunYESVoting() {
             {/* Hero */}
             <div style={{ textAlign: "center", marginBottom: 56, animation: "fadeUp 0.5s" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 18px", border: "1px solid rgba(212,175,55,0.4)", borderRadius: 20, marginBottom: 28, background: "rgba(212,175,55,0.06)" }}>
-                <span style={{ fontSize: 12 }}>\u2B50</span>
+                <span style={{ fontSize: 12 }}>⭐</span>
                 <span style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "#D4AF37", fontWeight: 600 }}>Ogun Young Entrepreneurs Award</span>
               </div>
               <h1 style={{ fontFamily: "'Oswald',sans-serif", fontSize: "clamp(36px,7vw,72px)", lineHeight: 1.0, fontWeight: 700, marginBottom: 16 }}>
@@ -263,7 +263,7 @@ export default function OgunYESVoting() {
               <p style={{ fontSize: 15, color: "rgba(240,253,244,0.5)", maxWidth: 500, margin: "0 auto 8px", lineHeight: 1.7 }}>
                 Vote for your favourite nominees across 12 award categories. Select a category below to cast your vote.
               </p>
-              <p style={{ fontSize: 12, color: "rgba(240,253,244,0.25)", marginBottom: 0 }}>\u00A9\uFE0F Kings Lindereca Academy</p>
+              <p style={{ fontSize: 12, color: "rgba(240,253,244,0.25)", marginBottom: 0 }}>©️ Kings Lindereca Academy</p>
             </div>
 
             {/* Category + Nominees */}
@@ -291,11 +291,11 @@ export default function OgunYESVoting() {
                       <div>
                         <div style={{ fontSize: 15, fontWeight: 600, color: "#f0fdf4" }}>{cat.name}</div>
                         <div style={{ fontSize: 12, color: "rgba(240,253,244,0.3)", marginTop: 2 }}>
-                          {catNominees.length} nominee{catNominees.length !== 1 ? "s" : ""} \u00B7 {total} vote{total !== 1 ? "s" : ""}
+                          {catNominees.length} nominee{catNominees.length !== 1 ? "s" : ""} · {total} vote{total !== 1 ? "s" : ""}
                         </div>
                       </div>
                     </div>
-                    <span style={{ color: "rgba(240,253,244,0.3)", fontSize: 20, transition: "transform 0.2s", transform: isOpen ? "rotate(180deg)" : "rotate(0)" }}>\u25BE</span>
+                    <span style={{ color: "rgba(240,253,244,0.3)", fontSize: 20, transition: "transform 0.2s", transform: isOpen ? "rotate(180deg)" : "rotate(0)" }}>▾</span>
                   </div>
 
                   {/* Nominees grid */}
@@ -333,7 +333,7 @@ export default function OgunYESVoting() {
                                   <span style={{ fontSize: 11, color: "rgba(240,253,244,0.3)" }}>
                                     {count} vote{count !== 1 ? "s" : ""}
                                   </span>
-                                  <span style={{ fontSize: 11, color: "#22c55e", fontWeight: 700 }}>TAP TO VOTE \u2192</span>
+                                  <span style={{ fontSize: 11, color: "#22c55e", fontWeight: 700 }}>TAP TO VOTE →</span>
                                 </div>
                               </div>
                             );
@@ -347,7 +347,7 @@ export default function OgunYESVoting() {
             })}
 
             <div style={{ textAlign: "center", marginTop: 48, fontSize: 13, color: "rgba(240,253,244,0.3)" }}>
-              {"\u{1F4DE}"} Enquiries:{" "}
+              📞 Enquiries:{" "}
               <a href="tel:+2348131659922" style={{ color: "#22c55e", textDecoration: "none" }}>
                 +234 813 165 9922 (Solomon)
               </a>
@@ -360,7 +360,7 @@ export default function OgunYESVoting() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "calc(100vh - 70px)", padding: 20 }}>
             <div style={{ width: "100%", maxWidth: 420, padding: "48px 40px", border: "1px solid rgba(212,175,55,0.25)", borderRadius: 16, background: "rgba(212,175,55,0.02)", animation: "fadeUp 0.4s" }}>
               <button onClick={() => setView("home")} style={{ fontSize: 12, letterSpacing: "0.1em", color: "#D4AF37", background: "none", border: "none", cursor: "pointer", marginBottom: 32, textTransform: "uppercase" }}>
-                \u2190 Back
+                ← Back
               </button>
               <div style={{ fontFamily: "'Oswald',sans-serif", fontSize: 30, marginBottom: 8, color: "#f0fdf4" }}>Admin Portal</div>
               <div style={{ fontSize: 14, color: "rgba(240,253,244,0.4)", marginBottom: 36 }}>Authorised access only.</div>
@@ -372,7 +372,7 @@ export default function OgunYESVoting() {
                     value={loginForm[field]}
                     onChange={(e) => setLoginForm((f) => ({ ...f, [field]: e.target.value }))}
                     onKeyDown={(e) => e.key === "Enter" && handleAdminLogin()}
-                    placeholder={field === "username" ? "Username" : "\u2022\u2022\u2022\u2022\u2022\u2022"}
+                    placeholder={field === "username" ? "Username" : "••••••"}
                     style={{
                       width: "100%",
                       padding: "12px 16px",
@@ -392,7 +392,7 @@ export default function OgunYESVoting() {
                 onClick={handleAdminLogin}
                 style={{ width: "100%", padding: "14px", background: "#D4AF37", color: "#1a0a00", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: "0.08em", marginTop: 8 }}
               >
-                Access Dashboard {"\u{1F511}"}
+                Access Dashboard 🔑
               </button>
             </div>
           </div>
@@ -424,9 +424,9 @@ export default function OgunYESVoting() {
             {/* Tabs */}
             <div style={{ display: "flex", borderBottom: "1px solid rgba(240,253,244,0.08)", marginBottom: 36 }}>
               {[
-                ["nominees", "\u{1F396}\uFE0F Nominees"],
-                ["results", "\u{1F4CA} Results"],
-                ["log", "\u{1F4CB} Vote Log"],
+                ["nominees", "🎖️ Nominees"],
+                ["results", "📊 Results"],
+                ["log", "📋 Vote Log"],
               ].map(([t, l]) => (
                 <button
                   key={t}
@@ -457,7 +457,7 @@ export default function OgunYESVoting() {
                   onClick={() => setAddingNominee(!addingNominee)}
                   style={{ padding: "10px 22px", background: "transparent", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600, marginBottom: 28, letterSpacing: "0.05em" }}
                 >
-                  {addingNominee ? "\u2715 Cancel" : "+ Add Nominee"}
+                  {addingNominee ? "✕ Cancel" : "+ Add Nominee"}
                 </button>
                 {addingNominee && (
                   <div style={{ padding: 28, border: "1px solid rgba(34,197,94,0.2)", borderRadius: 10, background: "rgba(34,197,94,0.03)", marginBottom: 28, animation: "fadeUp 0.3s" }}>
@@ -471,7 +471,7 @@ export default function OgunYESVoting() {
                           style={{ width: "100%", padding: "11px 14px", background: "rgba(240,253,244,0.05)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 8, color: "#f0fdf4", fontSize: 14, fontFamily: "inherit" }}
                         >
                           <option value="" style={{ background: "#0f1f11" }}>
-                            Select category\u2026
+                            Select category…
                           </option>
                           {AWARD_CATEGORIES.map((c) => (
                             <option key={c.id} value={c.id} style={{ background: "#0f1f11" }}>
