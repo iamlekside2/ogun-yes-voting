@@ -48,16 +48,7 @@ const storageSet = (key, value) => {
 };
 
 const YESLogo = ({ size = 40 }) => (
-  <svg width={size * 2.5} height={size} viewBox="0 0 120 48" fill="none">
-    <path d="M12 28 Q20 10 32 20" stroke="#F97316" strokeWidth="4" fill="none" strokeLinecap="round" />
-    <circle cx="32" cy="10" r="4" fill="#84cc16" />
-    <path d="M20 38 L28 22 L36 22 L44 38" stroke="#16a34a" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M32 22 L32 38" stroke="#16a34a" strokeWidth="5" strokeLinecap="round" />
-    <path d="M38 8 Q50 2 48 18" stroke="#16a34a" strokeWidth="4" fill="none" strokeLinecap="round" />
-    <text x="54" y="22" fontFamily="Arial Black, sans-serif" fontSize="14" fontWeight="900" fill="#16a34a">ES!</text>
-    <text x="54" y="34" fontFamily="Arial, sans-serif" fontSize="7" fontWeight="600" fill="#4b5563" letterSpacing="0.5">YOUNG</text>
-    <text x="54" y="43" fontFamily="Arial, sans-serif" fontSize="7" fontWeight="600" fill="#4b5563" letterSpacing="0.5">ENTREPRENEURS</text>
-  </svg>
+  <img src="/yes-logo.png" alt="YES! Young Entrepreneurs Summit" style={{ height: size, width: "auto", objectFit: "contain" }} />
 );
 
 const Spinner = () => (
