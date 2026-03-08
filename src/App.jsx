@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { supabase } from "./supabaseClient";
 
 const ADMIN_CREDENTIALS = { username: "admin", password: "yes2024" };
 
@@ -16,36 +17,6 @@ const AWARD_CATEGORIES = [
   { id: 11, name: "Business Transformation & Scalability Award", icon: "🏆" },
   { id: 12, name: "Service Excellence Award", icon: "🎖️" },
 ];
-
-const STORAGE_KEYS = { votes: "ogun_yes_votes_v2", nominees: "ogun_yes_nominees_v2" };
-
-const DEFAULT_NOMINEES = {
-  1: [
-    { id: 101, name: "GreenTech Ogun", bio: "Sustainable agri-tech startup" },
-    { id: 102, name: "PayLocal NG", bio: "Fintech for local markets" },
-  ],
-  7: [
-    { id: 701, name: "Adewale Fashola", bio: "Serial entrepreneur, 5 ventures" },
-    { id: 702, name: "Chidinma Osei", bio: "Founder of FoodBridge Ogun" },
-  ],
-};
-
-const storageGet = (key) => {
-  try {
-    const val = localStorage.getItem(key);
-    return val ? JSON.parse(val) : null;
-  } catch {
-    return null;
-  }
-};
-
-const storageSet = (key, value) => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // storage full or unavailable
-  }
-};
 
 const YESLogo = ({ size = 40 }) => (
   <img src="/yes-logo.png" alt="YES! Young Entrepreneurs Summit" style={{ height: size, width: "auto", objectFit: "contain" }} />
@@ -76,23 +47,45 @@ export default function OgunYESVoting() {
   const [logoClicks, setLogoClicks] = useState(0);
   const [logoTimer, setLogoTimer] = useState(null);
 
+  // Load data from Supabase on mount
   useEffect(() => {
-    const savedVotes = storageGet(STORAGE_KEYS.votes);
-    const savedNominees = storageGet(STORAGE_KEYS.nominees);
-    setVotes(savedVotes || []);
-    setNominees(savedNominees || DEFAULT_NOMINEES);
-    setAppReady(true);
+    const loadData = async () => {
+      try {
+        const [nomRes, voteRes] = await Promise.all([
+          supabase.from("nominees").select("*").order("created_at", { ascending: true }),
+          supabase.from("votes").select("*").order("created_at", { ascending: true }),
+        ]);
+
+        // Group nominees by category_id
+        const grouped = {};
+        if (nomRes.data) {
+          nomRes.data.forEach((n) => {
+            if (!grouped[n.category_id]) grouped[n.category_id] = [];
+            grouped[n.category_id].push({ id: n.id, name: n.name, bio: n.bio || "" });
+          });
+        }
+        setNominees(grouped);
+
+        // Map votes to the format the UI expects
+        if (voteRes.data) {
+          setVotes(
+            voteRes.data.map((v) => ({
+              id: v.id,
+              categoryId: v.category_id,
+              nomineeId: v.nominee_id,
+              catName: v.category_name,
+              nomineeName: v.nominee_name,
+              ts: new Date(v.created_at).getTime(),
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("Failed to load data:", err);
+      }
+      setAppReady(true);
+    };
+    loadData();
   }, []);
-
-  const persistVotes = (v) => {
-    setSaving(true);
-    storageSet(STORAGE_KEYS.votes, v);
-    setTimeout(() => setSaving(false), 300);
-  };
-
-  const persistNominees = (n) => {
-    storageSet(STORAGE_KEYS.nominees, n);
-  };
 
   const getNomineesForCat = (catId) => nominees[catId] || [];
   const getCatVoteCount = (catId, nomId) => votes.filter((v) => v.categoryId === catId && v.nomineeId === nomId).length;
@@ -114,33 +107,76 @@ export default function OgunYESVoting() {
     }
   };
 
-  const submitVote = () => {
+  const submitVote = async () => {
     const { catId, nomineeId, nomineeName, catName } = confirmVote;
-    const newVotes = [...votes, { categoryId: catId, nomineeId, catName, nomineeName, ts: Date.now() }];
-    setVotes(newVotes);
-    persistVotes(newVotes);
-    setConfirmVote(null);
-    setVoteSuccess({ catName, nomineeName });
-    setTimeout(() => setVoteSuccess(null), 3000);
+    setSaving(true);
+    try {
+      const { data, error } = await supabase
+        .from("votes")
+        .insert({ category_id: catId, nominee_id: nomineeId, category_name: catName, nominee_name: nomineeName })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setVotes((prev) => [
+        ...prev,
+        { id: data.id, categoryId: catId, nomineeId, catName, nomineeName, ts: new Date(data.created_at).getTime() },
+      ]);
+      setConfirmVote(null);
+      setVoteSuccess({ catName, nomineeName });
+      setTimeout(() => setVoteSuccess(null), 3000);
+    } catch (err) {
+      console.error("Vote failed:", err);
+      alert("Failed to submit vote. Please try again.");
+      setConfirmVote(null);
+    }
+    setSaving(false);
   };
 
-  const addNominee = () => {
+  const addNominee = async () => {
     if (!newNominee.name.trim() || !newNominee.categoryId) return;
     const catId = parseInt(newNominee.categoryId);
-    const updated = { ...nominees, [catId]: [...(nominees[catId] || []), { id: Date.now(), name: newNominee.name, bio: newNominee.bio }] };
-    setNominees(updated);
-    persistNominees(updated);
-    setNewNominee({ name: "", bio: "", categoryId: "" });
-    setAddingNominee(false);
+    setSaving(true);
+    try {
+      const { data, error } = await supabase
+        .from("nominees")
+        .insert({ category_id: catId, name: newNominee.name, bio: newNominee.bio })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setNominees((prev) => ({
+        ...prev,
+        [catId]: [...(prev[catId] || []), { id: data.id, name: data.name, bio: data.bio || "" }],
+      }));
+      setNewNominee({ name: "", bio: "", categoryId: "" });
+      setAddingNominee(false);
+    } catch (err) {
+      console.error("Add nominee failed:", err);
+      alert("Failed to add nominee. Please try again.");
+    }
+    setSaving(false);
   };
 
-  const removeNominee = (catId, nomId) => {
-    const updated = { ...nominees, [catId]: (nominees[catId] || []).filter((n) => n.id !== nomId) };
-    setNominees(updated);
-    const newVotes = votes.filter((v) => !(v.categoryId === catId && v.nomineeId === nomId));
-    setVotes(newVotes);
-    persistNominees(updated);
-    persistVotes(newVotes);
+  const removeNominee = async (catId, nomId) => {
+    setSaving(true);
+    try {
+      // Delete nominee (votes cascade automatically via DB constraint)
+      const { error } = await supabase.from("nominees").delete().eq("id", nomId);
+      if (error) throw error;
+
+      setNominees((prev) => ({
+        ...prev,
+        [catId]: (prev[catId] || []).filter((n) => n.id !== nomId),
+      }));
+      setVotes((prev) => prev.filter((v) => !(v.categoryId === catId && v.nomineeId === nomId)));
+    } catch (err) {
+      console.error("Remove nominee failed:", err);
+      alert("Failed to remove nominee. Please try again.");
+    }
+    setSaving(false);
   };
 
   const handleAdminLogin = () => {
@@ -219,8 +255,8 @@ export default function OgunYESVoting() {
               <button onClick={() => setConfirmVote(null)} style={{ padding: "11px 24px", background: "transparent", border: "1px solid rgba(240,253,244,0.15)", color: "rgba(240,253,244,0.5)", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>
                 Cancel
               </button>
-              <button onClick={submitVote} style={{ padding: "11px 28px", background: "#22c55e", color: "#052e16", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 700 }}>
-                Cast My Vote ⭐
+              <button onClick={submitVote} disabled={saving} style={{ padding: "11px 28px", background: saving ? "#166534" : "#22c55e", color: "#052e16", border: "none", borderRadius: 8, cursor: saving ? "wait" : "pointer", fontSize: 13, fontWeight: 700 }}>
+                {saving ? "Saving…" : "Cast My Vote ⭐"}
               </button>
             </div>
           </div>
@@ -501,8 +537,8 @@ export default function OgunYESVoting() {
                       <button onClick={() => setAddingNominee(false)} style={{ padding: "10px 20px", background: "transparent", border: "1px solid rgba(240,253,244,0.12)", color: "rgba(240,253,244,0.4)", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>
                         Cancel
                       </button>
-                      <button onClick={addNominee} style={{ padding: "10px 24px", background: "#22c55e", color: "#052e16", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 700 }}>
-                        Add Nominee
+                      <button onClick={addNominee} disabled={saving} style={{ padding: "10px 24px", background: saving ? "#166534" : "#22c55e", color: "#052e16", border: "none", borderRadius: 6, cursor: saving ? "wait" : "pointer", fontSize: 13, fontWeight: 700 }}>
+                        {saving ? "Adding…" : "Add Nominee"}
                       </button>
                     </div>
                   </div>
@@ -522,7 +558,7 @@ export default function OgunYESVoting() {
                             <div style={{ fontSize: 12, color: "rgba(240,253,244,0.35)", marginTop: 2 }}>{nom.bio}</div>
                           </div>
                           <div style={{ fontSize: 13, color: "#22c55e", fontWeight: 700, minWidth: 60, textAlign: "right" }}>{getCatVoteCount(cat.id, nom.id)} votes</div>
-                          <button onClick={() => removeNominee(cat.id, nom.id)} style={{ padding: "5px 12px", background: "transparent", border: "1px solid rgba(239,68,68,0.3)", color: "rgba(239,68,68,0.7)", borderRadius: 5, cursor: "pointer", fontSize: 11 }}>
+                          <button onClick={() => removeNominee(cat.id, nom.id)} disabled={saving} style={{ padding: "5px 12px", background: "transparent", border: "1px solid rgba(239,68,68,0.3)", color: "rgba(239,68,68,0.7)", borderRadius: 5, cursor: saving ? "wait" : "pointer", fontSize: 11 }}>
                             Remove
                           </button>
                         </div>
@@ -552,7 +588,7 @@ export default function OgunYESVoting() {
                       </div>
                       {sorted.map((nom, i) => {
                         const count = getCatVoteCount(cat.id, nom.id);
-                        const pct = total > 0 ? (count / total * 100).toFixed(1) : 0;
+                        const pct = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
                         return (
                           <div key={nom.id} style={{ marginBottom: 10 }}>
                             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
@@ -598,10 +634,10 @@ export default function OgunYESVoting() {
                         {[...votes].reverse().map((v, i) => {
                           const cat = AWARD_CATEGORIES.find((c) => c.id === v.categoryId);
                           return (
-                            <tr key={i}>
+                            <tr key={v.id || i}>
                               <td style={{ padding: "12px 14px", fontSize: 12, color: "rgba(240,253,244,0.25)", borderBottom: "1px solid rgba(240,253,244,0.04)" }}>{votes.length - i}</td>
                               <td style={{ padding: "12px 14px", fontSize: 13, color: "rgba(240,253,244,0.5)", borderBottom: "1px solid rgba(240,253,244,0.04)" }}>
-                                {cat?.icon} {cat?.name}
+                                {cat?.icon} {v.catName || cat?.name}
                               </td>
                               <td style={{ padding: "12px 14px", fontSize: 14, color: "#D4AF37", fontWeight: 600, borderBottom: "1px solid rgba(240,253,244,0.04)" }}>{v.nomineeName}</td>
                               <td style={{ padding: "12px 14px", fontSize: 12, color: "rgba(240,253,244,0.3)", borderBottom: "1px solid rgba(240,253,244,0.04)" }}>
